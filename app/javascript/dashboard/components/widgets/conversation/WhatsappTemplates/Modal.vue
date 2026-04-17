@@ -1,0 +1,109 @@
+<script>
+import TemplatesPicker from './TemplatesPicker.vue';
+import WhatsAppTemplateReply from './WhatsAppTemplateReply.vue';
+import TemplateCreate from './TemplateCreate.vue';
+export default {
+  components: {
+    TemplatesPicker,
+    WhatsAppTemplateReply,
+    TemplateCreate,
+  },
+  props: {
+    show: {
+      type: Boolean,
+      default: false,
+    },
+    inboxId: {
+      type: Number,
+      default: undefined,
+    },
+    contact: {
+      type: Object,
+      default: () => ({}),
+    }
+  },
+  emits: ['onSend', 'cancel', 'update:show'],
+  data() {
+    return {
+      selectedWaTemplate: null,
+      isCreating: false,
+    };
+  },
+  computed: {
+    localShow: {
+      get() {
+        return this.show;
+      },
+      set(value) {
+        this.$emit('update:show', value);
+      },
+    },
+    modalHeaderContent() {
+      return this.selectedWaTemplate
+        ? this.$t('WHATSAPP_TEMPLATES.MODAL.TEMPLATE_SELECTED_SUBTITLE', {
+            templateName: this.selectedWaTemplate.name,
+          })
+        : this.$t('WHATSAPP_TEMPLATES.MODAL.SUBTITLE');
+    },
+  },
+  methods: {
+    pickTemplate(template) {
+      this.selectedWaTemplate = template;
+    },
+    onResetTemplate() {
+      this.selectedWaTemplate = null;
+    },
+    onCreate() {
+      this.isCreating = true;
+    },
+    onCreateBack() {
+      this.isCreating = false;
+    },
+    onCreateSuccess() {
+      this.isCreating = false;
+    },
+    onSendMessage(message) {
+      this.$emit('onSend', message);
+    },
+    onClose() {
+      this.$emit('cancel');
+    },
+  },
+};
+</script>
+
+<template>
+  <woot-modal v-model:show="localShow" :on-close="onClose" size="modal-big">
+    <woot-modal-header
+      :header-title="$t('WHATSAPP_TEMPLATES.MODAL.TITLE')"
+      :header-content="modalHeaderContent"
+    />
+    <div class="row modal-content">
+      <TemplateCreate
+        v-if="isCreating"
+        :inbox-id="inboxId"
+        @back="onCreateBack"
+        @success="onCreateSuccess"
+      />
+      <TemplatesPicker
+        v-else-if="!selectedWaTemplate"
+        :inbox-id="inboxId"
+        @on-select="pickTemplate"
+        @on-create="onCreate"
+      />
+      <WhatsAppTemplateReply
+        v-else
+        :template="selectedWaTemplate"
+        :contact="contact"
+        @reset-template="onResetTemplate"
+        @send-message="onSendMessage"
+      />
+    </div>
+  </woot-modal>
+</template>
+
+<style scoped>
+.modal-content {
+  padding: 1.5625rem 2rem;
+}
+</style>
