@@ -12,6 +12,10 @@ const props = defineProps({
     type: Number,
     required: true,
   },
+  contact: {
+    type: Object,
+    default: () => ({}),
+  },
 });
 
 const emit = defineEmits(['sendMessage']);
@@ -112,6 +116,7 @@ const handleSendMessage = template => {
     <WhatsappTemplate
       v-if="selectedTemplate"
       :template="selectedTemplate"
+      :contact="contact"
       @send-message="handleSendMessage"
       @back="handleBack"
     />
