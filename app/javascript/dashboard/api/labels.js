@@ -9,6 +9,12 @@ class LabelsAPI extends CacheEnabledApiClient {
   get cacheModelName() {
     return 'label';
   }
+
+  reorder(labelPositions) {
+    return axios.post(`${this.url}/reorder`, {
+      label_positions: labelPositions,
+    });
+  }
 }
 
 export default new LabelsAPI();

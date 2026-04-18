@@ -1,6 +1,6 @@
 class Api::V1::Accounts::LabelsController < Api::V1::Accounts::BaseController
   before_action :current_account
-  before_action :fetch_label, except: [:index, :create]
+  before_action :fetch_label, except: [:index, :create, :reorder]
   before_action :check_authorization
 
   def index
@@ -19,6 +19,14 @@ class Api::V1::Accounts::LabelsController < Api::V1::Accounts::BaseController
 
   def destroy
     @label.destroy!
+    head :ok
+  end
+
+  def reorder
+    authorize Label
+    params.require(:label_positions).each do |label_id, position|
+      Current.account.labels.find(label_id).update!(position: position)
+    end
     head :ok
   end
 

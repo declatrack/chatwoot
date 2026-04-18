@@ -26,9 +26,10 @@ class Label < ApplicationRecord
             presence: { message: I18n.t('errors.validations.presence') },
             format: { with: UNICODE_CHARACTER_NUMBER_HYPHEN_UNDERSCORE },
             uniqueness: { scope: :account_id }
-
+  validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
+  
   after_update_commit :update_associated_models
-  default_scope { order(:title) }
+  default_scope { order(:position, :title) }
 
   before_validation do
     self.title = title.downcase if attribute_present?('title')

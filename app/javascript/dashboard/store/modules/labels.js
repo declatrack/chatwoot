@@ -24,7 +24,7 @@ export const getters = {
   getLabelsOnSidebar(_state) {
     return _state.records
       .filter(record => record.show_on_sidebar)
-      .sort((a, b) => a.title.localeCompare(b.title));
+      .sort((a, b) => a.position - b.position);
   },
   getLabelById: _state => id => {
     return _state.records.find(record => record.id === Number(id)) || {};
@@ -48,10 +48,7 @@ export const actions = {
     commit(types.SET_LABEL_UI_FLAG, { isFetching: true });
     try {
       const response = await LabelsAPI.get(true);
-      const sortedLabels = response.data.payload.sort((a, b) =>
-        a.title.localeCompare(b.title)
-      );
-      commit(types.SET_LABELS, sortedLabels);
+      commit(types.SET_LABELS, response.data.payload);
     } catch (error) {
       // Ignore error
     } finally {
@@ -96,6 +93,13 @@ export const actions = {
       throw new Error(error);
     } finally {
       commit(types.SET_LABEL_UI_FLAG, { isDeleting: false });
+    }
+  },
+  reorder: async function reorder({ commit }, labelPositions) {
+    try {
+      await LabelsAPI.reorder(labelPositions);
+    } catch (error) {
+      throw new Error(error);
     }
   },
 };
